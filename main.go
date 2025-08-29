@@ -18,6 +18,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/glamour"
 	"golang.org/x/crypto/md4"
 )
 
@@ -26,11 +27,7 @@ const (
 	gbeDir         = ".local/share/gbe_fork"
 	steamStoreAPI  = "https://store.steampowered.com/api"
 	githubAPIURL   = "https://api.github.com/repos/Detanup01/gbe_fork/releases/latest"
-	md5Command     = "md5sum"
-	md5Fallback    = "md5"
 	sevenZCommand  = "7z"
-	wgetCommand    = "wget"
-	curlCommand    = "curl"
 	stringsCommand = "strings"
 )
 
@@ -64,10 +61,11 @@ var platformConfig = map[string]struct {
 // Release represents a GitHub release.
 type Release struct {
 	Assets []struct {
-		Name              string `json:"name"`
-		BrowserDownloadURL  string `json:"browser_download_url"`
+		Name               string `json:"name"`
+		BrowserDownloadURL string `json:"browser_download_url"`
 	} `json:"assets"`
 	UpdatedAt time.Time `json:"updated_at"`
+	Body      string    `json:"body"`
 }
 
 // runCmd executes a command and returns its output or an error.
@@ -310,6 +308,21 @@ func updateGBE() error {
 			return nil
 		}
 	}
+	// Create a new renderer with the desired style
+	// glamour.WithAutoStyle() automatically detects the current terminal's dark/light mode
+	renderer, _ := glamour.NewTermRenderer(
+		glamour.WithAutoStyle(),
+	)
+
+	// Render the markdown text
+	renderedText, err := renderer.Render(release.Body)
+	if err != nil {
+		fmt.Println("Error rendering markdown:", err)
+		return nil
+	}
+
+	// Print the rendered output to the command line
+	fmt.Println(renderedText)
 
 	if err := os.MkdirAll(gbeHome, 0755); err != nil {
 		return fmt.Errorf("failed to create directory %s: %w", gbeHome, err)
