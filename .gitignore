@@ -7,7 +7,7 @@
 *.dll
 *.so
 *.dylib
-gbe_tool
+gbe_fork_helper
 
 # Test binary, built with `go test -c`
 *.test

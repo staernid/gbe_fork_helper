@@ -1,5 +1,5 @@
 // go.mod
-module gbe_tool
+module gbe_fork_helper
 
 go 1.23.0
 
