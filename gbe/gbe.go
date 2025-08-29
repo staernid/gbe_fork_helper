@@ -1,7 +1,6 @@
 package gbe
 
 import (
-	"bytes"
 	"fmt"
 	"gbe_fork_helper/config"
 	"gbe_fork_helper/util"
@@ -26,9 +25,18 @@ func ApplyGBE(platform string) error {
 
 	gbePath := filepath.Join(os.Getenv("HOME"), config.GbeDir, platformCfg.Subdir, "experimental", "x"+platformCfg.Arch)
 
-	targetFiles, err := filepath.Glob(filepath.Join(".", "**", platformCfg.Target))
-	if err != nil {
-		return fmt.Errorf("failed to search for files: %w", err)
+	var targetFiles []string
+	walkErr := filepath.WalkDir(".", func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() && d.Name() == platformCfg.Target {
+			targetFiles = append(targetFiles, path)
+		}
+		return nil
+	})
+	if walkErr != nil {
+		return fmt.Errorf("failed to search for files: %w", walkErr)
 	}
 
 	if len(targetFiles) == 0 {
@@ -56,13 +64,6 @@ func ApplyGBE(platform string) error {
 
 		if targetHash == sourceHash {
 			log.Println("SUCCESS: File is already up-to-date. Skipping.")
-			continue
-		}
-
-		// Check for GBE fork strings
-		output, err := util.RunCmd(config.StringsCommand, file)
-		if err == nil && bytes.Contains(output, []byte("gbe_fork")) {
-			log.Printf("WARN: File '%s' appears to be an existing GBE fork. Skipping.", file)
 			continue
 		}
 
