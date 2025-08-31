@@ -1,0 +1,51 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
+        cache: true # Enable caching for Go modules
+
+    - name: Build for Linux
+      run: |
+        go mod tidy
+        GOOS=linux GOARCH=amd64 go build -o gbe_fork_helper_linux_amd64 main.go
+
+    - name: Archive production artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: gbe_fork_helper_linux_amd64
+        path: gbe_fork_helper_linux_amd64
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./gbe_fork_helper_linux_amd64
+        asset_name: gbe_fork_helper_linux_amd64
+        asset_content_type: application/octet-stream
