@@ -10,6 +10,7 @@ Commands:
             apply <platform> - Apply GBE to Steam API files
             update           - Update the GBE fork repository
             dlc <appid>      - Fetch DLCs for a given AppID
+            version          - Display the application version
 ```
 
 ## Roadmap

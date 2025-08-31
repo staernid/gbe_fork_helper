@@ -18,11 +18,7 @@ func main() {
 
 	args := os.Args[1:]
 	if len(args) < 1 {
-		fmt.Println("Usage: gbe_fork_helper <command> [options]")
-		fmt.Println("Commands:")
-		fmt.Println("  apply <platform> - Apply GBE to Steam API files")
-		fmt.Println("  update           - Update the GBE fork repository")
-		fmt.Println("  dlc <appid>      - Fetch DLCs for a given AppID")
+		printUsage()
 		os.Exit(1)
 	}
 
@@ -44,11 +40,23 @@ func main() {
 		} else {
 			err = steam.FetchDLCs(args[1])
 		}
+	case "version":
+		fmt.Println(GetVersion())
 	default:
-		err = fmt.Errorf("Invalid command: '%s'", command)
+		err = fmt.Errorf("Invalid command: '%s'\n\n", command)
+		printUsage()
 	}
 
 	if err != nil {
 		log.Fatalf("ERROR: %v", err)
 	}
+}
+
+func printUsage() {
+	fmt.Println("Usage: gbe_fork_helper <command> [options]")
+	fmt.Println("Commands:")
+	fmt.Println("  apply <platform> - Apply GBE to Steam API files")
+	fmt.Println("  update           - Update the GBE fork repository")
+	fmt.Println("  dlc <appid>      - Fetch DLCs for a given AppID")
+	fmt.Println("  version          - Display the application version")
 }
