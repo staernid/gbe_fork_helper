@@ -11,6 +11,14 @@ import (
 	"gbe_fork_helper/steam"
 )
 
+// Version of the gbe_fork_helper application
+const Version = "v0.1.3"
+
+// GetVersion returns the current version string
+func GetVersion() string {
+	return Version
+}
+
 // main handles command-line arguments and dispatches commands.
 func main() {
 	log.SetFlags(0)
