@@ -27,24 +27,28 @@ func main() {
 	}
 
 	command := args[0]
+	var err error
+
 	switch command {
 	case "apply":
 		if len(args) < 2 {
-			log.Fatalf("ERROR: Usage: %s apply <platform>", os.Args[0])
-		}
-		if err := gbe.ApplyGBE(args[1]); err != nil {
-			log.Fatalf("ERROR: %v", err)
+			err = fmt.Errorf("Usage: %s apply <platform>", os.Args[0])
+		} else {
+			err = gbe.ApplyGBE(args[1])
 		}
 	case "update":
-		if err := github.UpdateGBE(); err != nil {
-			log.Fatalf("ERROR: %v", err)
-		}
+		err = github.UpdateGBE()
 	case "dlc":
 		if len(args) < 2 {
-			log.Fatalf("ERROR: Usage: %s dlc <appid>", os.Args[0])
+			err = fmt.Errorf("Usage: %s dlc <appid>", os.Args[0])
+		} else {
+			err = steam.FetchDLCs(args[1])
 		}
-		steam.FetchDLCs(args[1])
 	default:
-		log.Fatalf("ERROR: Invalid command: '%s'", command)
+		err = fmt.Errorf("Invalid command: '%s'", command)
+	}
+
+	if err != nil {
+		log.Fatalf("ERROR: %v", err)
 	}
 }

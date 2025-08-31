@@ -34,19 +34,19 @@ func FetchAppName(appID string) (string, error) {
 }
 
 // fetchDLCs fetches DLCs for a given AppID.
-func FetchDLCs(appID string) {
+func FetchDLCs(appID string) error {
 	log.Printf("INFO: Fetching DLCs for AppID %s...", appID)
 
 	dlcURL := fmt.Sprintf("https://store.steampowered.com/dlc/%s/random/ajaxgetfilteredrecommendations/?query&count=10000", appID)
 	resp, err := http.Get(dlcURL)
 	if err != nil {
-		log.Fatalf("ERROR: Failed to fetch DLCs: %v", err)
+		return fmt.Errorf("failed to fetch DLCs: %w", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalf("ERROR: Failed to read response body: %v", err)
+		return fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	re := regexp.MustCompile(`data-ds-appid=\\"(\d+)`)
@@ -54,7 +54,7 @@ func FetchDLCs(appID string) {
 
 	if len(matches) == 0 {
 		log.Printf("WARN: No DLCs found for AppID %s.", appID)
-		return
+		return nil
 	}
 
 	uniqueDLCs := make(map[string]struct{})
@@ -70,4 +70,5 @@ func FetchDLCs(appID string) {
 		}
 		fmt.Printf("%s=%s\n", dlcID, name)
 	}
+	return nil
 }

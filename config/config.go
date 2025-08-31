@@ -4,11 +4,10 @@ import "time"
 
 // Global Configuration
 const (
-	GbeDir         = ".local/share/gbe_fork"
-	SteamStoreAPI  = "https://store.steampowered.com/api"
-	GithubAPIURL   = "https://api.github.com/repos/Detanup01/gbe_fork/releases/latest"
-	SevenZCommand  = "7z"
-	StringsCommand = "strings"
+	GbeDir        = ".local/share/gbe_fork"
+	SteamStoreAPI = "https://store.steampowered.com/api"
+	GithubAPIURL  = "https://api.github.com/repos/Detanup01/gbe_fork/releases/latest"
+	SevenZCommand = "7z"
 )
 
 // PlatformConfig maps platform names to their configuration.

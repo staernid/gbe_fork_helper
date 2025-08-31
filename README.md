@@ -14,31 +14,11 @@ Commands:
 
 ## Roadmap
 
-### Standardize Error Handling:
-
-        [ ] Refactor all functions that currently use log.Fatalf to return an error instead. Let the main function decide whether to exit on an error. This is crucial for a GUI, which shouldn't just crash.
-
-### Add Unit Tests:
-
-        [ ] Write a unit test for a simple helper, like getHash.
-
-        [ ] Write tests for the steam package, using mock HTTP responses to avoid hitting the real Steam API during tests.
-
-        [ ] Begin testing the gbe package, mocking the filesystem and command execution where possible.
-
 ### Improve Platform Compatibility:
 
-        - [] Replace Linux-specific code (like os.Getenv("HOME")) with cross-platform equivalents (os.UserHomeDir()).
-
-        [ ] Abstract external commands (7z, strings). Consider using native Go libraries for archive extraction to remove the dependency on a pre-installed 7z.
-
-        [ ] Fully implement and test the win64 and win32 logic defined in your platformConfig.
+        [ ] Abstract external commands (7z). Consider using native Go libraries for archive extraction to remove the dependency on a pre-installed 7z.
 
 ### Implement DLC Configuration (steam_settings):
-
-        [ ] Design the structure for a configuration file (e.g., dlcs.json or settings.ini).
-
-        [ ] Create functions to read the list of enabled DLCs from this file.
 
         [ ] Create a new command (gbe_tool dlc configure <appid>) that uses fetchDLCs and allows the user to select and save which DLCs to enable.
 

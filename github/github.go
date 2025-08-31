@@ -18,7 +18,11 @@ import (
 // updateGBE fetches and extracts the latest GBE fork.
 func UpdateGBE() error {
 	log.Println("INFO: Fetching latest GBE fork from GitHub...")
-	gbeHome := filepath.Join(os.Getenv("HOME"), config.GbeDir)
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("failed to get user home directory: %w", err)
+	}
+	gbeHome := filepath.Join(homeDir, config.GbeDir)
 	timestampFile := filepath.Join(gbeHome, ".gbe_timestamp")
 
 	resp, err := http.Get(config.GithubAPIURL)

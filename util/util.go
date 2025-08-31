@@ -48,12 +48,16 @@ func GetHash(filePath string) (string, error) {
 // backupAndReplace backs up a file and replaces it.
 func BackupAndReplace(src, dest string) error {
 	timestamp := time.Now().Format("20060102-150405")
-	backupPath := fmt.Sprintf("%s.%s.ORIGINAL", dest, timestamp)
-
-	if err := os.Rename(dest, backupPath); err != nil {
-		return fmt.Errorf("failed to backup %s: %w", dest, err)
+	// Check if the destination file exists before attempting to backup
+	if _, err := os.Stat(dest); err == nil {
+		backupPath := fmt.Sprintf("%s.%s.ORIGINAL", dest, timestamp)
+		if err := os.Rename(dest, backupPath); err != nil {
+			return fmt.Errorf("failed to backup %s: %w", dest, err)
+		}
+		log.Printf("INFO: Backed up '%s' to '%s'", dest, backupPath)
+	} else if !os.IsNotExist(err) {
+		return fmt.Errorf("failed to stat destination file %s: %w", dest, err)
 	}
-	log.Printf("INFO: Backed up '%s' to '%s'", dest, backupPath)
 
 	if err := os.Link(src, dest); err != nil {
 		// Fallback to copy if hard link fails

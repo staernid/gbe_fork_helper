@@ -23,7 +23,11 @@ func ApplyGBE(platform string) error {
 		return fmt.Errorf("invalid platform: '%s'. Valid platforms: %s", platform, strings.Join(validPlatforms, ", "))
 	}
 
-	gbePath := filepath.Join(os.Getenv("HOME"), config.GbeDir, platformCfg.Subdir, "experimental", "x"+platformCfg.Arch)
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("failed to get user home directory: %w", err)
+	}
+	gbePath := filepath.Join(homeDir, config.GbeDir, platformCfg.Subdir, "experimental", "x"+platformCfg.Arch)
 
 	var targetFiles []string
 	walkErr := filepath.WalkDir(".", func(path string, d os.DirEntry, err error) error {
@@ -82,7 +86,11 @@ func ApplyGBE(platform string) error {
 			}
 		}
 
-		generatorPath := filepath.Join(os.Getenv("HOME"), config.GbeDir, platformCfg.Subdir, "tools", "generate_interfaces", platformCfg.Generator)
+		homeDir, err = os.UserHomeDir()
+		if err != nil {
+			return fmt.Errorf("failed to get user home directory: %w", err)
+		}
+		generatorPath := filepath.Join(homeDir, config.GbeDir, platformCfg.Subdir, "tools", "generate_interfaces", platformCfg.Generator)
 		if _, err := os.Stat(generatorPath); err == nil {
 			log.Printf("INFO: Running generator '%s'...", platformCfg.Generator)
 			if runtime.GOOS != "windows" {
