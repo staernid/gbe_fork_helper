@@ -132,6 +132,35 @@ func DownloadAndExtract(url, destDir, format string) error {
 			}
 			file.Close()
 		}
+
+		// After extraction, check if there's a single top-level directory and move its contents up
+		entries, err := os.ReadDir(destDir)
+		if err != nil {
+			return fmt.Errorf("failed to read destination directory after tar.bz2 extraction: %w", err)
+		}
+
+		if len(entries) == 1 && entries[0].IsDir() {
+			nestedDirPath := filepath.Join(destDir, entries[0].Name())
+			log.Printf("INFO: Found single nested directory '%s'. Moving contents up.", nestedDirPath)
+
+			nestedEntries, err := os.ReadDir(nestedDirPath)
+			if err != nil {
+				return fmt.Errorf("failed to read nested directory '%s': %w", nestedDirPath, err)
+			}
+
+			for _, entry := range nestedEntries {
+				oldPath := filepath.Join(nestedDirPath, entry.Name())
+				newPath := filepath.Join(destDir, entry.Name())
+				if err := os.Rename(oldPath, newPath); err != nil {
+					return fmt.Errorf("failed to move '%s' to '%s': %w", oldPath, newPath, err)
+				}
+			}
+			if err := os.Remove(nestedDirPath); err != nil {
+				return fmt.Errorf("failed to remove empty nested directory '%s': %w", nestedDirPath, err)
+			}
+			log.Println("SUCCESS: Nested directory contents moved up.")
+		}
+
 	case "7z":
 		tempFile := filepath.Join(os.TempDir(), "temp.7z")
 		outFile, err := os.Create(tempFile)
