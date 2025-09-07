@@ -3,6 +3,7 @@ package gbe
 import (
 	"fmt"
 	"gbe_fork_helper/config"
+	"gbe_fork_helper/steam"
 	"gbe_fork_helper/util"
 	"log"
 	"os"
@@ -13,7 +14,7 @@ import (
 )
 
 // applyGBE applies the GBE patch to a specified platform.
-func ApplyGBE(platform string) error {
+func ApplyGBE(platform, appID string) error {
 	platformCfg, ok := config.PlatformConfig[platform]
 	if !ok {
 		var validPlatforms []string
@@ -103,6 +104,14 @@ func ApplyGBE(platform string) error {
 			if out, err := cmd.CombinedOutput(); err != nil {
 				log.Printf("ERROR: Generator failed: %v\nOutput: %s", err, string(out))
 			}
+		}
+	}
+
+	// After applying GBE, fetch and configure DLCs
+	for _, file := range targetFiles {
+		libraryPath := filepath.Dir(file)
+		if err := steam.FetchDLCs(appID, libraryPath); err != nil {
+			log.Printf("WARN: Failed to fetch and configure DLCs for AppID %s in %s: %v", appID, libraryPath, err)
 		}
 	}
 

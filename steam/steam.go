@@ -7,7 +7,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"regexp"
+	"strings" // Added for strings.Builder
 )
 
 // fetchAppName gets the app name for a Steam AppID.
@@ -34,8 +37,27 @@ func FetchAppName(appID string) (string, error) {
 }
 
 // fetchDLCs fetches DLCs for a given AppID.
-func FetchDLCs(appID string) error {
-	log.Printf("INFO: Fetching DLCs for AppID %s...", appID)
+func FetchDLCs(appID, libraryPath string) error {
+	log.Printf("INFO: Fetching DLCs for AppID %s in library path %s...", appID, libraryPath)
+
+	// Write steam_appid.txt
+	appIDFilePath := filepath.Join(libraryPath, "steam_appid.txt")
+	if err := os.WriteFile(appIDFilePath, []byte(appID), 0644); err != nil {
+		return fmt.Errorf("failed to write steam_appid.txt: %w", err)
+	}
+	log.Printf("INFO: Wrote steam_appid.txt with AppID %s to %s", appID, appIDFilePath)
+
+	// Prepare for configs.app.ini
+	steamSettingsDir := filepath.Join(libraryPath, "steam_settings")
+	if err := os.MkdirAll(steamSettingsDir, 0755); err != nil {
+		return fmt.Errorf("failed to create steam_settings directory: %w", err)
+	}
+	configsAppIniPath := filepath.Join(steamSettingsDir, "configs.app.ini")
+
+	var dlcContent strings.Builder
+	dlcContent.WriteString("[app::dlcs]\nunlock_all=0\n")
+
+	// Fetch DLCs
 
 	dlcURL := fmt.Sprintf("https://store.steampowered.com/dlc/%s/random/ajaxgetfilteredrecommendations/?query&count=10000", appID)
 	resp, err := http.Get(dlcURL)
@@ -68,7 +90,13 @@ func FetchDLCs(appID string) error {
 			log.Printf("WARN: Failed to get name for DLC %s: %v", dlcID, err)
 			continue
 		}
-		fmt.Printf("%s=%s\n", dlcID, name)
+		dlcContent.WriteString(fmt.Sprintf("%s=%s\n", dlcID, name))
 	}
+
+	if err := os.WriteFile(configsAppIniPath, []byte(dlcContent.String()), 0644); err != nil {
+		return fmt.Errorf("failed to write configs.app.ini: %w", err)
+	}
+	log.Printf("INFO: Wrote DLC configuration to %s", configsAppIniPath)
+
 	return nil
 }

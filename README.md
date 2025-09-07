@@ -7,10 +7,9 @@ Usage:
 Usage: gbe_fork_helper <command> [options]
 
 Commands:
-            apply <platform> - Apply GBE to Steam API files
-            update           - Update the GBE fork repository
-            dlc <appid>      - Fetch DLCs for a given AppID
-            version          - Display the application version
+            apply <platform> <appid> - Apply GBE to Steam API files and configure DLCs
+            update                   - Update the GBE fork repository
+            version                  - Display the application version
 ```
 
 ## Roadmap

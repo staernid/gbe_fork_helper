@@ -8,7 +8,6 @@ import (
 
 	"gbe_fork_helper/gbe"
 	"gbe_fork_helper/github"
-	"gbe_fork_helper/steam"
 )
 
 // Version of the gbe_fork_helper application
@@ -35,19 +34,13 @@ func main() {
 
 	switch command {
 	case "apply":
-		if len(args) < 2 {
-			err = fmt.Errorf("Usage: %s apply <platform>", os.Args[0])
+		if len(args) < 3 {
+			err = fmt.Errorf("Usage: %s apply <platform> <appid>", os.Args[0])
 		} else {
-			err = gbe.ApplyGBE(args[1])
+			err = gbe.ApplyGBE(args[1], args[2])
 		}
 	case "update":
 		err = github.UpdateGBE()
-	case "dlc":
-		if len(args) < 2 {
-			err = fmt.Errorf("Usage: %s dlc <appid>", os.Args[0])
-		} else {
-			err = steam.FetchDLCs(args[1])
-		}
 	case "version":
 		fmt.Println(GetVersion())
 	default:
@@ -63,8 +56,7 @@ func main() {
 func printUsage() {
 	fmt.Println("Usage: gbe_fork_helper <command> [options]")
 	fmt.Println("Commands:")
-	fmt.Println("  apply <platform> - Apply GBE to Steam API files")
-	fmt.Println("  update           - Update the GBE fork repository")
-	fmt.Println("  dlc <appid>      - Fetch DLCs for a given AppID")
-	fmt.Println("  version          - Display the application version")
+	fmt.Println("  apply <platform> <appid> - Apply GBE to Steam API files and configure DLCs")
+	fmt.Println("  update                   - Update the GBE fork repository")
+	fmt.Println("  version                  - Display the application version")
 }
