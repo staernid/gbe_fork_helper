@@ -11,7 +11,7 @@ import (
 )
 
 // Version of the gbe_fork_helper application
-const Version = "v0.1.3"
+const Version = "v0.1.4"
 
 // GetVersion returns the current version string
 func GetVersion() string {
